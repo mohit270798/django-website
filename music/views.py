@@ -1,9 +1,5 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-
-from .models import Album
-
-# Create your views here.
+from django.shortcuts import render, get_object_or_404
+from .models import Album, Song
 
 
 def index(request):
@@ -12,5 +8,21 @@ def index(request):
     return render(request, 'music/albums.html', context)
 
 
-def detail(request, id):
-    return HttpResponse('You are viewing album no.' + str(id))
+def detail(request, album_id):
+    album = get_object_or_404(Album, pk=album_id)
+    return render(request, 'music/detail.html', {'album': album})
+
+
+def favourite(request, album_id):
+    album = get_object_or_404(Album, pk=album_id)
+    try:
+        selected_song = album.song_set.get(pk=request.POST['song'])
+    except(KeyError, Song.DoesNotExist):
+        return render(request, 'music/detail.html', {
+            'album': album,
+            'error': 'You have selected wrong song'
+        })
+    else:
+        selected_song.is_favourite = True
+        selected_song.save()
+        return render(request, 'music/detail.html', {'album': album})

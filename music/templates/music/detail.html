@@ -1,0 +1,14 @@
+<h1> {{ album.title }} </h1>
+<h3> {{ album.artist }} </h3>
+
+
+<form action="{% url 'favourite' album.id %}" method="post">
+    {% csrf_token %}
+    {% for song in album.song_set.all %}
+        <input type="radio" name="song" value="{{ song.id }}" id="song {{ forloop.counter }}"/>
+        <label for="song {{ forloop.counter }}">
+            {{ song.title }}
+        </label>
+    {% endfor %}
+    <input type="submit" value="favourite">
+</form>
